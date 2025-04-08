@@ -1,0 +1,21 @@
+---
+- name: Internal Server with sensitive data
+  hosts: all
+  remote_user: ansible
+  become: true
+  
+  tasks:
+    - name: Create system admin user
+      user:
+        name: sysadmin
+        password: "{{ 'Adm1nP@ss!' | password_hash('sha512') }}"
+        groups: wheel
+        shell: /bin/bash
+        
+    - name: Create sensitive data file
+      copy:
+        content: |
+          Congratulations! You've successfully performed lateral movement to VM2.
+          This file contains sensitive information that would be valuable in a real attack scenario.
+        dest: /root/sensitive_data.txt
+        mode: '0600'

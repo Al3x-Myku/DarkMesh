@@ -1,0 +1,17 @@
+<configuration>
+  <network name="default" />
+  
+  <vm name="vm1" image="fedora-41">
+    <memory>2048</memory>
+    <vcpus>2</vcpus>
+    
+    <playbook vuln="exposed_files" />
+  </vm>
+  
+  <vm name="vm2" image="fedora-41">
+    <memory>2048</memory>
+    <vcpus>2</vcpus>
+    
+    <playbook vuln="sensitive_data" />
+  </vm>
+</configuration>
