@@ -9,13 +9,15 @@ import xml.etree.ElementTree as ET
 from argparse import ArgumentParser
 import ansible_runner
 
+path_templates = "/home/tony/projects/darkmesh/templates/vulnerabilities"
+
 class VMOrchestrator:
     def __init__(self, xml_file):
         self.xml_file = xml_file
         self.conn = None
         self.vms = []
         self.network_name = "default"
-        self.playbooks_dir = os.path.join(os.path.dirname(os.path.abspath(xml_file)), "/home/tony/projects/darkmesh/templates/vulnerabilities")
+        self.playbooks_dir = os.path.join(os.path.dirname(os.path.abspath(xml_file)), path_templates)
         
     def connect_to_hypervisor(self):
         try:
