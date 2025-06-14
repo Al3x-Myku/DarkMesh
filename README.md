@@ -7,7 +7,7 @@ It's key commponents include:
 
 ### 1. Main Functionality
 - **VM and Docker Orchestration**
-  - Developed in C.
+  - Developed in Python.
   - Operates according to predefined "scenarios" defined in XML files.
 
 ### 2. Graphical User Interface (GUI)
